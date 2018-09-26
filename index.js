@@ -2,28 +2,42 @@ const assert = require("assert");
 
 function getCandidates(scores, lowerLimits, upperLimits) {
   // Build frequency array indexed by scores
-  const freq = Array(scores.length).fill(0);
+  const freq = [];
   scores.forEach(score => {
     const value = freq[score] || 0;
     freq[score] = value + 1;
   });
 
+
   // build accumulated frequency array indexed by scores
-  const freqAcc = freq.map((freq, score) => {
-    const prevFreq = freq[score - 1] || 0;
-    return freq + prevFreq;
-  });
+  const freqAcc = []
+  const biggestScore = freq.length - 1
+  for (let score = 0; score <= biggestScore ; score++) {
+    const prevFreqAcc = freqAcc[score - 1] || 0;
+    const nextFreq = freq[score] || 0
+    console.log('prev freq', prevFreqAcc, nextFreq)
+    freqAcc[score] = nextFreq + prevFreqAcc;
+  }
+
+  console.log('scores', scores)
+  console.log('freq', freq)
+  console.log('feqAc', freqAcc)
 
   const result = lowerLimits.map((lower, index) => {
     const upper = upperLimits[index];
-    const candidates = freqAcc[upper] - freqAcc[lower];
+
+    const upperFreq = freqAcc[upper] || freqAcc[freqAcc.length - 1]
+    const lowerFreq = freqAcc[lower - 1] || 0
+
+    const candidates =  upperFreq - lowerFreq;
     return candidates;
   });
 
   return result;
 }
 
-assert(
+
+assert.deepEqual(
   getCandidates(
     [1],
 
@@ -34,7 +48,18 @@ assert(
   [1]
 );
 
-assert(
+assert.deepEqual(
+  getCandidates(
+    [1],
+
+    [1],
+    [1]
+  ),
+
+  [1]
+);
+
+assert.deepEqual(
   getCandidates(
     [1, 2, 3, 3],
 
@@ -45,7 +70,7 @@ assert(
   [2]
 );
 
-assert(
+assert.deepEqual(
   getCandidates(
     [1, 2, 3, 3, 4, 5, 8, 3],
 
